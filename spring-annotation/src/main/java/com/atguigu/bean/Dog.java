@@ -10,7 +10,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Dog implements ApplicationContextAware {
+public class Dog implements ApplicationContextAware {//Ê¹ÓÃiocÈÝÆ÷
 	
 	//@Autowired
 	private ApplicationContext applicationContext;
