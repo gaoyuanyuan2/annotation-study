@@ -18,6 +18,11 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/*
+ *手写简易版SpringMVC
+ *
+ *
+ */
 public class MyDispatcherServlet extends HttpServlet {
 
     private Properties contextConfig = new Properties();
@@ -37,14 +42,6 @@ public class MyDispatcherServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-     /*   String url = req.getRequestURI();
-        String contextPath = req.getContextPath();
-        url = url.replace(contextPath, "").replaceAll("/+", "/");
-        if (!handlerMapping.containsKey(url)) {
-            resp.getWriter().write("404 Not Found!");
-        }
-        Method method = handlerMapping.get(url);
-        System.out.println(method);*/
         try {
             doDispatch(req, resp);
         } catch (Exception e) {
@@ -59,12 +56,10 @@ public class MyDispatcherServlet extends HttpServlet {
             return;
         }
         Class<?>[] paramTypes = handler.method.getParameterTypes();
-
         Object[] paramValues = new Object[paramTypes.length];
         Map<String, String[]> params = req.getParameterMap();
         for (Map.Entry<String, String[]> param : params.entrySet()) {
             String value = Arrays.toString(param.getValue()).replaceAll("\\[|\\]", "").replaceAll("", "");
-
             if (!handler.paramIndexMapping.containsKey(param.getKey())) {
                 continue;
             }
@@ -75,15 +70,14 @@ public class MyDispatcherServlet extends HttpServlet {
         paramValues[reqIndex] = req;
         int respIndex = handler.paramIndexMapping.get(HttpServletResponse.class.getName());
         paramValues[respIndex] = resp;
-
         handler.method.invoke(handler.controller, paramValues);
     }
 
     private Object convert(Class<?> paramType, String value) {
-       if(Integer.class == paramType){
-          return  Integer.valueOf(value);
-       }
-       return  value;
+        if (Integer.class == paramType) {
+            return Integer.valueOf(value);
+        }
+        return value;
     }
 
     private Handler getHandler(HttpServletRequest req) throws Exception {
@@ -113,14 +107,12 @@ public class MyDispatcherServlet extends HttpServlet {
         doLoadConfig(config.getInitParameter("contextConfigLocation"));
         //2、扫描出所有的想关联的类
         doScanner(contextConfig.getProperty("scanPackage"));
-        //3、初始化IOC牢器，然后讲相关联的类放入到I0C容器之中
+        //3、初始化IOC容器，然后讲相关联的类放入到I0C容器之中
         doInstance();
         //4、实现依赖注入
         doAutowired();
         //5、初始化HandlerMapping
         initHandlerMapping();
-
-
     }
 
 
@@ -179,8 +171,6 @@ public class MyDispatcherServlet extends HttpServlet {
                 }
             }
         }
-
-
     }
 
     private void doInstance() {
@@ -193,7 +183,7 @@ public class MyDispatcherServlet extends HttpServlet {
                 Object instance = clazz.newInstance();
                 if (clazz.isAnnotationPresent(MyController.class)) {
                     String name = lowerFirstCase(clazz.getSimpleName());
-                    iocMap.put(name,instance);
+                    iocMap.put(name, instance);
                 } else if (clazz.isAnnotationPresent(MyService.class)) {
                     //1.默认类名的首字母小写
                     //2、自定XbeanName,要以自定义的优先
@@ -214,7 +204,6 @@ public class MyDispatcherServlet extends HttpServlet {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
     }
 
@@ -282,11 +271,9 @@ public class MyDispatcherServlet extends HttpServlet {
                     }
                 }
             }
-
             //提取方法中的request和response参数
             Class<?>[] paramsTypes = method.getParameterTypes();
             for (int i = 0; i < paramsTypes.length; i++) {
-
                 Class<?> type = paramsTypes[i];
                 if (type == HttpServletRequest.class ||
                         type == HttpServletResponse.class) {
